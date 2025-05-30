@@ -1,0 +1,68 @@
+{
+  "users": [
+    {
+      "_id": "665000000000000000000001",
+      "username": "admin",
+      "password": "hashed-password-admin",
+      "role": "admin",
+      "createdAt": "2025-05-19T10:00:00"
+    },
+    {
+      "_id": "665000000000000000000002",
+      "username": "staff1",
+      "password": "hashed-password-staff",
+      "role": "staff",
+      "createdAt": "2025-05-19T11:00:00"
+    }
+  ],
+  "tables": [
+    {
+      "_id": "665000000000000000000010",
+      "name": "B\u00e0n 1",
+      "status": "occupied",
+      "currentBillID": "665000000000000000000200"
+    }
+  ],
+  "dishes": [
+    {
+      "_id": "665000000000000000000100",
+      "name": "Ph\u1edf b\u00f2",
+      "price": 50000,
+      "description": "Ph\u1edf b\u00f2 truy\u1ec1n th\u1ed1ng",
+      "isAvailable": true
+    },
+    {
+      "_id": "665000000000000000000101",
+      "name": "Tr\u00e0 s\u1eefa",
+      "price": 30000,
+      "description": "Tr\u00e0 s\u1eefa tr\u00e2n ch\u00e2u",
+      "isAvailable": true
+    }
+  ],
+  "bills": [
+    {
+  "tableID": "682c287e910abca2aab5e9cd",   
+  "userID": "682c0a9de8902c454a67017e",    
+  "createdAt": "2025-05-19T18:00:00Z",
+  "status": "unpaid",            
+  "items": [
+    {
+      "dishID": "682c2913910abca2aab5e9d9",
+      "name": "Phở bò",         
+      "quantity": 2,
+      "price": 50000,
+      "note": "Ít hành"
+    },
+    {
+      "dishID": "682c2913910abca2aab5e9db",
+      "name": "Thịt kho tàu",
+      "quantity": 1,
+      "price": 80000,
+      "note": "Thêm tiêu"
+    }
+  ],
+  "totalAmount": 180000
+}
+
+  ]
+}

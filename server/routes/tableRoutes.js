@@ -1,0 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const tableController = require('../controllers/tableController');
+const { verifyToken, verifyRole } = require('../middlewares/auth');
+
+router.get('/', verifyToken, tableController.getAll);
+router.post('/', verifyToken, verifyRole('admin'), tableController.create);
+router.patch('/:id/status', verifyToken, tableController.updateStatus);
+
+module.exports = router;

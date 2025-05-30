@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Đăng nhập</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100">
+  <div class="w-full max-w-sm p-6 bg-white rounded-2xl shadow-lg">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Đăng nhập hệ thống</h2>
+    <form action="/admin" method="GET" id ="loginForm" class="space-y-4">
+      <input type="text" name="username" id="username" placeholder="Tên đăng nhập" required
+        class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300" />
+      <input type="password" name="password" id="password" placeholder="Mật khẩu" required
+        class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300" />
+      <button type="submit" onlick=""
+        class="w-full py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">Đăng nhập</button>
+    </form>
+     <p id="errorMsg" class="text-red-500 text-center mt-3 hidden"></p>
+  </div>
+
+  <script> 
+    const form = document.getElementById("loginForm");
+    const errorMsg = document.getElementById("errorMsg");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        console.log(username, password); //debug log
+
+        try {
+            const res = await fetch("/api/users/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if(res.ok) { // Nếu res.status trả về 200 hoặc dưới 
+                localStorage.setItem("token", data.token);
+                window.location.href = "/admin";
+            } else {
+                errorMsg.textContent = data.message || "Đăng nhập thất bại";
+                errorMsg.classList.remove("hidden");
+            }
+        } catch (err) {
+            errorMsg.textContent = "Lỗi kết nối đến máy chủ";
+            errorMsg.classList.remove("hidden");
+        }
+    });
+  </script>
+
+</body>
+</html>
