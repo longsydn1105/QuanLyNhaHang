@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8">
+	<title>Gọi món</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+</head>
+<body class="bg-gray-100 p-6">
+	<h1 class="text-2xl font-bold text-center mb-6">Gọi món cho bàn</h1>
+
+	<div id="dishContainer" class="space-y-4 max-w-xl mx-auto"></div>
+
+	<div class="mt-8 text-center">
+		<button id="confirmBtn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Xác nhận</button>
+	</div>
+
+	<script>
+		// ✅ Bảo vệ đăng nhập
+		const token = localStorage.getItem("token");
+		if (!token) {
+			alert("Vui lòng đăng nhập");
+			window.location.href = "/login";
+		}
+
+		const tableID = new URLSearchParams(window.location.search).get("table");
+		const billID = new URLSearchParams(window.location.search).get("bill");
+
+		const dishContainer = document.getElementById("dishContainer");
+		const confirmBtn = document.getElementById("confirmBtn");
+
+		const selectedDishes = {}; // Lưu số lượng
+
+		async function loadDishes() {
+			try {
+				const res = await fetch("/api/dishes", {
+					headers: { Authorization: `Bearer ${token}` }
+				});
+				const dishes = await res.json();
+
+				dishes.forEach(dish => {
+					if (!dish.isAvailable) return;
+
+					selectedDishes[dish._id] = 0;
+
+					const div = document.createElement("div");
+					div.className = "bg-white p-4 rounded shadow flex justify-between items-center";
+
+					div.innerHTML = `
+						<div>
+							<h3 class="text-lg font-semibold">${dish.name}</h3>
+							<p class="text-sm text-gray-600">${dish.description}</p>
+							<p class="text-sm text-gray-800 mt-1">Giá: ${dish.price.toLocaleString()}đ</p>
+						</div>
+						<div class="flex items-center space-x-2">
+							<button onclick="updateQty('${dish._id}', -1)" class="bg-gray-300 px-3 py-1 rounded text-lg">−</button>
+							<span id="qty-${dish._id}" class="min-w-[20px] text-center">0</span>
+							<button onclick="updateQty('${dish._id}', 1)" class="bg-blue-500 text-white px-3 py-1 rounded text-lg">+</button>
+						</div>
+					`;
+
+					dishContainer.appendChild(div);
+				});
+			} catch (err) {
+				alert("Lỗi khi tải món ăn");
+				console.error(err);
+			}
+		}
+
+		function updateQty(dishID, delta) {
+			selectedDishes[dishID] = Math.max(0, (selectedDishes[dishID] || 0) + delta);
+			document.getElementById(`qty-${dishID}`).textContent = selectedDishes[dishID];
+		}
+
+		confirmBtn.onclick = async () => {
+			const res = await fetch("/api/dishes", {
+				headers: { Authorization: `Bearer ${token}` }
+			});
+			const allDishes = await res.json();
+
+			const orderItems = [];
+
+			for (const dish of allDishes) {
+				const qty = selectedDishes[dish._id];
+				if (qty > 0) {
+					orderItems.push({
+						dishID: dish._id,
+						name: dish.name,
+						quantity: qty,
+						price: dish.price
+					});
+				}
+			}
+
+			if (orderItems.length === 0) {
+				return alert("Vui lòng chọn ít nhất 1 món");
+			}
+
+			try {
+				const res = await fetch(`/api/bills/${billID}/add-items`, {
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`
+					},
+					body: JSON.stringify({ items: orderItems })
+				});
+
+				const data = await res.json();
+
+				if (res.ok) {
+					alert("Đặt món thành công!");
+					window.location.href = "/staff";
+				} else {
+					alert(data.message || "Gọi món thất bại");
+				}
+			} catch (err) {
+				alert("Lỗi khi gửi yêu cầu gọi món!");
+				console.error(err);
+			}
+		};
+
+		loadDishes();
+	</script>
+</body>
+</html>

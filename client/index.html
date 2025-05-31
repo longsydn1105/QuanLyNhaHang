@@ -4,11 +4,36 @@
   <meta charset="UTF-8" />
   <title>Trang chủ | Nhà hàng</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="./favicon.ico" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Tailwind custom màu nâu */
+    .bg-coffee {
+      background-color: #EFE6DD; /* Nền be nhẹ */
+    }
+    .text-coffee {
+      color: #5D3A00; /* Nâu đậm sang */
+    }
+    .bg-coffee-dark {
+      background-color: #8B5E3C; /* Nâu trung tính */
+    }
+    .bg-coffee-dark:hover {
+      background-color: #734926;
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-yellow-50 to-red-100 min-h-screen flex flex-col items-center justify-center">
-  <h1 class="text-4xl font-bold text-red-600 mb-4">Chào mừng đến với Nhà hàng ABC</h1>
-  <p class="text-gray-700 text-center max-w-md">Thưởng thức hương vị tuyệt vời và dịch vụ chuyên nghiệp tại nhà hàng của chúng tôi.</p>
-  <a href="/login" class="mt-8 px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition">Đăng nhập quản lý</a>
+<body class="bg-coffee min-h-screen flex flex-col items-center justify-center px-4 text-center">
+
+  <h1 class="text-4xl sm:text-5xl font-bold text-coffee mb-4">🍽️ Chào mừng đến với Nhà hàng LH </h1>
+
+  <p class="text-gray-700 text-lg max-w-xl mb-8 leading-relaxed">
+    Trải nghiệm ẩm thực đẳng cấp với không gian sang trọng, dịch vụ chuyên nghiệp và món ăn tinh tế.
+  </p>
+
+  <a href="/login"
+     class="px-8 py-3 rounded-xl bg-coffee-dark text-white font-semibold text-lg shadow-md hover:shadow-lg transition">
+    Đăng nhập quản lý
+  </a>
+
 </body>
 </html>

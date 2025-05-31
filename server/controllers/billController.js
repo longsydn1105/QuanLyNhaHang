@@ -11,7 +11,7 @@ exports.create = async (req, res) => {
 
         const updateResult =  await Table.findByIdAndUpdate(
           req.body.tableID,
-          { $set: { currentBillID: bill._id } },
+          { $set: { currentBillID: bill._id, status: "occupied" } },
           { new: true, runValidators: true }
         );
 
@@ -23,26 +23,78 @@ exports.create = async (req, res) => {
     }
 }
 
-// Thêm món mới vào hoá đơn
-exports.addItem = async (req, res) => {
-    try {
-        const { dishID, quantity, note, price, name } = req.body; 
-        const total = quantity * price; // Tính tổng tiền cho món
-        const bill = await Bill.findByIdAndUpdate(
-            req.params.id,
-            { $push: { items: { dishID, quantity, note, price, name, total } } },
-            { new: true }
-        );
+// Lấy hóa đơn theo ID
+exports.getById = async (req, res) => {
+	try {
+		const bill = await Bill.findById(req.params.id);
 
-        if (!bill) {
-            return res.status(404).json({ message: 'Không tìm thấy hoá đơn để thêm món' });
-        }
+    console.log("Bill fetched:", bill); // Debug log
 
-        res.json(bill);
-    } catch (err) {
-        res.status(400).json({ message: 'Thêm món vào hoá đơn thất bại', error: err.message });
-    }
-}
+		if (!bill) {
+			return res.status(404).json({ message: "Không tìm thấy hóa đơn" });
+		}
+
+		res.json(bill);
+	} catch (err) {
+		res.status(400).json({ message: "Lỗi khi lấy hóa đơn", error: err.message });
+	}
+};
+
+
+// Thêm nhiều món ăn vào hóa đơn
+exports.addItems = async (req, res) => {
+	try {
+		let { items } = req.body;
+
+		if (!Array.isArray(items) || items.length === 0) {
+			return res.status(400).json({ message: 'Danh sách món ăn không hợp lệ' });
+		}
+
+		// Kiểm tra và tính total cho từng món
+		items = items.map(item => {
+			const { dishID, name, quantity, price, note } = item;
+
+			if (!dishID || !name || !quantity || !price) {
+				throw new Error("Thiếu thông tin ở một trong các món ăn");
+			}
+
+			if (isNaN(quantity) || isNaN(price) || quantity <= 0 || price < 0) {
+				throw new Error("Số lượng hoặc giá không hợp lệ");
+			}
+
+			return {
+				dishID,
+				name,
+				quantity,
+				price,
+				note,
+				total: quantity * price
+			};
+		});
+
+		// Cập nhật hóa đơn
+		const bill = await Bill.findByIdAndUpdate(
+			req.params.id,
+			{ $push: { items: { $each: items } } },
+			{ new: true }
+		);
+
+		if (!bill) {
+			return res.status(404).json({ message: 'Không tìm thấy hóa đơn để thêm món' });
+		}
+
+		res.json({
+			message: 'Đã thêm các món vào hóa đơn',
+			updatedBill: bill
+		});
+	} catch (err) {
+		res.status(400).json({
+			message: 'Thêm món thất bại',
+			error: err.message
+		});
+	}
+};
+
 
 // Thanh toán hoá đơn
 exports.checkout = async (req, res) => {
@@ -62,7 +114,7 @@ exports.checkout = async (req, res) => {
     // Xoá liên kết bill khỏi bàn
     const updateResult = await Table.findByIdAndUpdate(
           bill.tableID,
-          { $set: { currentBillID: null } },
+          { $set: { currentBillID: null, status: "available" } },
           { new: true, runValidators: true }
         );
 

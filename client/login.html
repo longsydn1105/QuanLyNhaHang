@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Đăng nhập</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="./favicon.ico" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="flex items-center justify-center min-h-screen bg-gray-100">
@@ -16,6 +17,10 @@
         class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300" />
       <button type="submit" onlick=""
         class="w-full py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">Đăng nhập</button>
+      <p class="text-sm text-center text-gray-600">
+        Bạn chưa có tài khoản?
+        <a href="/register" class="text-blue-600 hover:underline">Đăng ký ngay</a>
+      </p>
     </form>
      <p id="errorMsg" class="text-red-500 text-center mt-3 hidden"></p>
   </div>
@@ -43,7 +48,7 @@
 
             if(res.ok) { // Nếu res.status trả về 200 hoặc dưới 
                 localStorage.setItem("token", data.token);
-                window.location.href = "/admin";
+                window.location.href = "/staff";
             } else {
                 errorMsg.textContent = data.message || "Đăng nhập thất bại";
                 errorMsg.classList.remove("hidden");

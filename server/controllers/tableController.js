@@ -10,6 +10,20 @@
     }
 };
 
+// Lấy bàn theo ID
+exports.getById = async (req, res) => {
+  try {
+    const table = await Table.findById(req.params.id);
+    if (!table) {
+      return res.status(404).json({ message: 'Không tìm thấy bàn' });
+    }
+    res.json(table);
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi server', error: err.message });
+  }
+};
+
+
 // Tạo ra bàn mới
 exports.create = async (req, res) => { 
     try {

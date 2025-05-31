@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8">
+	<title>Chi tiết bàn</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+	<script src="https://cdn.tailwindcss.com"></script>
+    <script src="./utils/formatDate-browser.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+	<div class="w-full max-w-md bg-white rounded-xl shadow p-6 space-y-4">
+		<h2 class="text-2xl font-bold text-center text-gray-800 mb-4" id="tableName">Bàn ...</h2>
+
+		<div>
+			<p class="font-semibold">Món ăn:</p>
+			<p id="dishes" class="text-gray-700">...</p>
+		</div>
+
+		<div>
+			<p class="font-semibold">Bắt đầu:</p>
+			<p id="startTime" class="text-gray-700">...</p>
+		</div>
+
+		<div class="flex justify-between mt-6 space-x-4">
+			<button id="btnReserve" class="w-1/3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Đặt bàn</button>
+			<button id="btnOrder" class="w-1/3 py-2 rounded bg-gray-300 text-gray-600 cursor-not-allowed" disabled>Gọi món</button>
+			<button id="btnCheckout" class="w-1/3 py-2 rounded bg-gray-300 text-gray-600 cursor-not-allowed" disabled>Thanh toán</button>
+		</div>
+	</div>
+
+	<script>
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Vui lòng đăng nhập trước!");
+            window.location.href = "/login";
+        }
+
+        const tableID = new URLSearchParams(window.location.search).get("id");
+		const tableNameEl = document.getElementById("tableName");
+		const dishesEl = document.getElementById("dishes");
+		const startTimeEl = document.getElementById("startTime");
+
+		const btnReserve = document.getElementById("btnReserve");
+		const btnOrder = document.getElementById("btnOrder");
+		const btnCheckout = document.getElementById("btnCheckout");
+
+		async function loadTableDetail() {
+			try {
+                
+				const resTable = await fetch(`/api/tables/${tableID}`, {
+					headers: { Authorization: `Bearer ${token}` }
+				});
+				const table = await resTable.json();
+
+				tableNameEl.textContent = table.name;
+
+				if (table.currentBillID) {
+					// Có bill → lấy bill chi tiết
+					const resBill = await fetch(`/api/bills/${table.currentBillID}`, {
+						headers: { Authorization: `Bearer ${token}` }
+					});
+					const bill = await resBill.json();
+
+                    // console.log("Bill at FE: ",bill); // debug log
+                    // console.log("Raw createdAt:", bill.createAt);     
+
+					// Hiển thị món và thời gian
+					const dishList = bill.items.map(item => `${item.name} (${item.quantity})`).join(", ");
+					dishesEl.textContent = dishList || "Không có món nào";
+                    const formattedStart = formatDateVN(bill.createAt);
+					startTimeEl.textContent = formattedStart;
+
+					// Bật nút gọi món, thanh toán – Khóa đặt bàn
+					btnReserve.disabled = true;
+					btnReserve.className = "w-1/3 py-2 rounded bg-gray-300 text-gray-600 cursor-not-allowed";
+
+					btnOrder.disabled = false;
+					btnOrder.className = "w-1/3 py-2 rounded bg-green-600 text-white hover:bg-green-700";
+                    btnOrder.onclick = () => {
+                        window.location.href = `/order?table=${tableID}&bill=${table.currentBillID}`;
+                    };
+                    
+					btnCheckout.disabled = false;
+					btnCheckout.className = "w-1/3 py-2 rounded bg-red-600 text-white hover:bg-red-700";
+
+				} else {
+					// Chưa có bill
+					dishesEl.textContent = "–";
+					startTimeEl.textContent = "–";
+
+					// Khóa gọi món, thanh toán
+					btnOrder.disabled = true;
+					btnOrder.className = "w-1/3 py-2 rounded bg-gray-300 text-gray-600 cursor-not-allowed";
+
+					btnCheckout.disabled = true;
+					btnCheckout.className = "w-1/3 py-2 rounded bg-gray-300 text-gray-600 cursor-not-allowed";
+				}
+			} catch (err) {
+				alert("Lỗi khi tải dữ liệu bàn");
+				console.error(err);
+			}
+		}
+
+        //Giải mã JWT để lấy thông tin người dùng
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = decodeURIComponent(atob(base64Url).split('').map(c =>
+                '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+            ).join(''));
+            return JSON.parse(base64);
+        }
+
+        // Đặt bàn
+        btnReserve.onclick = async () => {
+            const token = localStorage.getItem("token");
+            const user = parseJwt(token);
+
+            try {
+                const res = await fetch("/api/bills", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        tableID: tableID,
+                        userID: user.id
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert("Đặt bàn thành công!");
+                    location.reload(); // Reload để cập nhật lại giao diện (nút gọi món, thời gian, ...)
+                } else {
+                    alert(data.message || "Không thể đặt bàn");
+                }
+            } catch (err) {
+                alert("Lỗi khi đặt bàn!");
+                console.error(err);
+            }
+        };
+
+        btnOrder.onclick = () => {
+            window.location.href = `/order?table=${tableID}&bill=${table.currentBillID}`;
+        };
+
+		loadTableDetail();
+	</script>
+</body>
+</html>

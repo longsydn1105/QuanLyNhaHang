@@ -1,0 +1,6 @@
+# Không đẩy file .env
+server/.env
+
+# Bỏ thư mục node_modules
+node_modules/
+
