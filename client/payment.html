@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8">
+	<title>Thanh toán</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+
+	<h1 class="text-2xl font-bold text-center mb-6">Xác nhận thanh toán</h1>
+
+	<div class="max-w-xl mx-auto bg-white rounded shadow p-6 space-y-4">
+		<p><strong>Bàn:</strong> <span id="tableName">...</span></p>
+		<p><strong>Bắt đầu:</strong> <span id="startTime">...</span></p>
+
+		<h2 class="text-lg font-semibold mt-4 mb-2">Danh sách món ăn:</h2>
+		<div id="itemsContainer" class="space-y-2"></div>
+
+		<p class="text-right font-semibold mt-4">Tổng cộng: <span id="totalAmount">0</span>đ</p>
+
+		<div class="text-center mt-6">
+			<button id="confirmBtn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Xác nhận thanh toán</button>
+		</div>
+	</div>
+
+	<script>
+		const token = localStorage.getItem("token");
+		if (!token) {
+			alert("Bạn chưa đăng nhập!");
+			window.location.href = "/login";
+		}
+
+		const billID = new URLSearchParams(window.location.search).get("bill");
+		if (!billID) {
+			alert("Không có hóa đơn");
+			window.location.href = "/staff";
+		}
+
+		const tableNameEl = document.getElementById("tableName");
+		const startTimeEl = document.getElementById("startTime");
+		const itemsContainer = document.getElementById("itemsContainer");
+		const totalAmountEl = document.getElementById("totalAmount");
+		const confirmBtn = document.getElementById("confirmBtn");
+
+		async function loadBill() {
+			try {
+				const res = await fetch(`/api/bills/${billID}`, {
+					headers: { Authorization: `Bearer ${token}` }
+				});
+				const bill = await res.json();
+
+				startTimeEl.textContent = new Date(bill.createAt).toLocaleString();
+
+				let total = 0;
+				bill.items.forEach(item => {
+					const itemDiv = document.createElement("div");
+					itemDiv.className = "flex justify-between border-b pb-1";
+					const lineTotal = item.price * item.quantity;
+
+					itemDiv.innerHTML = `
+						<span>${item.name} x ${item.quantity}</span>
+						<span>${lineTotal.toLocaleString()}đ</span>
+					`;
+
+					total += lineTotal;
+					itemsContainer.appendChild(itemDiv);
+				});
+
+				totalAmountEl.textContent = total.toLocaleString();
+
+				// Lấy tên bàn nếu muốn (dựa trên bill.tableID)
+				const tableRes = await fetch(`/api/tables/${bill.tableID}`, {
+					headers: { Authorization: `Bearer ${token}` }
+				});
+				const table = await tableRes.json();
+				tableNameEl.textContent = table.name || "–";
+
+			} catch (err) {
+				alert("Lỗi khi tải hóa đơn");
+				console.error(err);
+			}
+		}
+
+		confirmBtn.onclick = async () => {
+			try {
+				const res = await fetch(`/api/bills/${billID}/checkout`, {
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
+				});
+
+				if (res.ok) {
+					alert("Thanh toán thành công!");
+					window.location.href = "/staff";
+				} else {
+					const data = await res.json();
+					alert(data.message || "Thanh toán thất bại");
+				}
+			} catch (err) {
+				alert("Lỗi khi gửi yêu cầu thanh toán");
+				console.error(err);
+			}
+		};
+
+		loadBill();
+	</script>
+</body>
+</html>

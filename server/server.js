@@ -44,6 +44,10 @@ app.get('/order', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/order.html'));
 });
 
+app.get('/payment', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/payment.html'));
+});
+
 // Cổng server
 const PORT = process.env.PORT || 5000;
 

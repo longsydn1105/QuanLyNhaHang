@@ -7,25 +7,43 @@
   <link rel="icon" type="image/x-icon" href="./favicon.ico" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen p-6">
-  <header class="text-center mb-10">
-    <h1 class="text-3xl font-bold text-blue-700">Trang quản trị nhà hàng</h1>
-    <p class="text-gray-600 mt-2">Chào mừng bạn đến với khu vực quản lý</p>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between px-6 py-4 bg-[#3b2f2f] shadow-md">
+    <div class="flex items-center">
+      <img src="./assets/imgs/logo.png" alt="LH Logo" class="h-12 mr-3">
+      <h1 class="text-xl font-bold text-white">LH Restaurant – Quản lý</h1>
+    </div>
+    <button onclick="window.location.href='/staff'" class="text-sm bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+      Quay lại
+    </button>
   </header>
 
-  <main class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-    <div class="bg-white p-6 rounded-xl shadow">
-      <h3 class="text-lg font-semibold text-gray-700 mb-2">Đơn hàng hôm nay</h3>
-      <p class="text-3xl text-blue-600 font-bold">123</p>
-    </div>
-    <div class="bg-white p-6 rounded-xl shadow">
-      <h3 class="text-lg font-semibold text-gray-700 mb-2">Bàn đang sử dụng</h3>
-      <p class="text-3xl text-blue-600 font-bold">15</p>
-    </div>
-    <div class="bg-white p-6 rounded-xl shadow">
-      <h3 class="text-lg font-semibold text-gray-700 mb-2">Doanh thu hôm nay</h3>
-      <p class="text-3xl text-green-600 font-bold">8,500,000đ</p>
+  <!-- Nội dung chính -->
+  <main class="p-10 max-w-5xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Chọn chức năng quản lý</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Thẻ: Danh sách món ăn -->
+      <div onclick="window.location.href='/admin/dishes'" class="cursor-pointer bg-white rounded-xl shadow p-6 hover:bg-yellow-100 transition">
+        <h3 class="text-lg font-semibold text-gray-700">🍽️ Danh sách món ăn</h3>
+        <p class="text-sm text-gray-500 mt-2">Xem, thêm, sửa và xoá món ăn trong menu.</p>
+      </div>
+
+      <!-- Thẻ: Danh sách bàn -->
+      <div onclick="window.location.href='/admin/tables'" class="cursor-pointer bg-white rounded-xl shadow p-6 hover:bg-yellow-100 transition">
+        <h3 class="text-lg font-semibold text-gray-700">🪑 Danh sách bàn</h3>
+        <p class="text-sm text-gray-500 mt-2">Quản lý trạng thái và số lượng bàn.</p>
+      </div>
+
+      <!-- Thẻ: Báo cáo -->
+      <div onclick="window.location.href='/admin/reports'" class="cursor-pointer bg-white rounded-xl shadow p-6 hover:bg-yellow-100 transition">
+        <h3 class="text-lg font-semibold text-gray-700">📊 Báo cáo</h3>
+        <p class="text-sm text-gray-500 mt-2">Xem thống kê doanh thu, đơn hàng, và hoạt động.</p>
+      </div>
     </div>
   </main>
+
 </body>
 </html>

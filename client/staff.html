@@ -19,7 +19,7 @@
 
 		<!-- Action buttons -->
 		<div class="flex items-center space-x-4">
-			<a href="/admin" class="text-sm bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition">
+			<a  id="btnAdmin" class="text-sm bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition">
 				Quản lý
 			</a>
 			<button onclick="logout()" class="text-sm bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
@@ -90,6 +90,26 @@
 				alert("Lỗi khi tải bàn: " + err.message);
 			}
 		}
+
+		document.getElementById("btnAdmin").onclick = async () => {
+			const token = localStorage.getItem("token");
+			if (!token) return alert("Bạn chưa đăng nhập!");
+
+			try {
+				const res = await fetch("/api/users/check-role", {
+					headers: { Authorization: `Bearer ${token}` }
+				});
+
+				const data = await res.json();
+				if (res.ok && data.role === "admin") {
+					window.location.href = "/admin";
+				} else {
+					alert("Bạn không có quyền truy cập trang quản lý!");
+				}
+			} catch (err) {
+				alert("Lỗi xác minh quyền!");
+			}
+		};
 
 		loadTables();
 	</script>

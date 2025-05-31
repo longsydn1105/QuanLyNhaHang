@@ -77,11 +77,11 @@
 			const res = await fetch("/api/dishes", {
 				headers: { Authorization: `Bearer ${token}` }
 			});
-			const allDishes = await res.json();
+			const allDishes = await res.json(); // lấy tất cả món ăn
 
 			const orderItems = [];
 
-			for (const dish of allDishes) {
+			for (const dish of allDishes) { // Món ăn nào có số lượng > 0 thì thêm vào orderItems
 				const qty = selectedDishes[dish._id];
 				if (qty > 0) {
 					orderItems.push({
