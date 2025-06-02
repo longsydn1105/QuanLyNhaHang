@@ -14,7 +14,7 @@ const verifyToken = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded; // Lưu thông tin người dùng vào req.user
 
-        console.log('Token verified:', req.user); // debug log
+        //console.log('Token verified:', req.user); // debug log
 
         next();
     } catch (err) {

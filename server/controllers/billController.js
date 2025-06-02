@@ -23,6 +23,19 @@ exports.create = async (req, res) => {
     }
 }
 
+// Lấy danh sách hóa đơn
+exports.getAll = async (req, res) => {
+  try {
+    const bills = await Bill.find().sort({ createdAt: -1 }); // sắp xếp mới nhất trước
+    res.json(bills);
+  } catch (err) {
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách hóa đơn",
+      error: err.message
+    });
+  }
+};
+
 // Lấy hóa đơn theo ID
 exports.getById = async (req, res) => {
 	try {
@@ -170,16 +183,20 @@ exports.getRevenueStats = async (req, res) => {
   try {
     const { type, date } =req.query;
 
+    console.log("Type:", type); // Debug log
+    console.log("Date:", date); // Debug log
+
     if(!date) return res.status(400).json({ message: 'Thiếu tham số ngày (date)' });
 
     const inputDate = new Date(date);
-
     let startDate, endDate;
 
+    console.log("Input Date:", inputDate); // Debug log
+
     if (type === 'day') {
-      startDate = new Date(inputDate.setHours(0, 0, 0, 0));
-      endDate = new Date(inputDate.setHours(23, 59, 59, 999));
-    } else if (type === 'week') {
+      startDate = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), 0, 0, 0, 0);
+      endDate = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), 23, 59, 59, 999);
+    }else if (type === 'week') {
       const dayOfWeek = inputDate.getDay();
       const diffToMonDay = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
 
@@ -195,6 +212,8 @@ exports.getRevenueStats = async (req, res) => {
     } else {
       return res.status(400).json({ message: 'Tham số "type" phải là "day" hoặc "week" hoặc "month"' });
     }
+
+    console.log("Start Date:", startDate); // Debug log
 
     const bills = await Bill.find({
       createAt: {

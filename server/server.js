@@ -48,6 +48,20 @@ app.get('/payment', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/payment.html'));
 });
 
+// Các router ở giao diện admin
+app.get('/admin/dishes', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/admin-dishes.html'));
+});
+
+app.get('/admin/tables', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/admin-tables.html'));
+});
+
+app.get('/admin/reports', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/admin-reports.html'));
+});
+
+
 // Cổng server
 const PORT = process.env.PORT || 5000;
 

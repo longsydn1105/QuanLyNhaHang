@@ -7,5 +7,6 @@ router.get('/', verifyToken, tableController.getAll);
 router.get('/:id', tableController.getById);
 router.post('/', verifyToken, verifyRole('admin'), tableController.create);
 router.patch('/:id/status', verifyToken, tableController.updateStatus);
+router.delete('/:id', verifyToken, verifyRole('admin'), tableController.delete);
 
 module.exports = router;

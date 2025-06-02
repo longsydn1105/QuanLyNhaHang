@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thống kê doanh thu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-white min-h-screen flex items-center justify-center">
+
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-2xl">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">📈 Thống kê doanh thu</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Loại thống kê</label>
+        <select id="typeSelect" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 px-4 py-2">
+          <option value="day">Theo ngày</option>
+          <option value="week">Theo tuần</option>
+          <option value="month">Theo tháng</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Chọn ngày</label>
+        <input type="date" id="dateInput" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 px-4 py-2" />
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button onclick="loadRevenue()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-xl transition duration-200 shadow-md">
+        📊 Xem thống kê
+      </button>
+    </div>
+
+    <div id="revenueResult" class="mt-8 text-center space-y-3 hidden">
+      <div class="text-xl font-semibold text-gray-700">💰 Doanh thu: 
+        <span id="revenueAmount" class="text-green-600"></span>
+      </div>
+      <div class="text-lg text-gray-600">🧾 Số hoá đơn: 
+        <span id="billCount" class="text-blue-600 font-medium"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Vui lòng đăng nhập");
+      window.location.href = "/login";
+    }
+
+    const headers = {
+      "Authorization": "Bearer " + token,
+      "Content-Type": "application/json"
+    };
+
+    async function loadRevenue() {
+      const type = document.getElementById("typeSelect").value;
+      const date = document.getElementById("dateInput").value;
+
+      if (!date) {
+        alert("Hãy chọn ngày");
+        return;
+      }
+
+      console.log("type:", type, "date:", date);
+      // Test kết quá
+      try {
+    const res = await fetch(`/api/bills`, { headers });
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Lỗi không xác định");
+    }
+
+    const bills = await res.json();
+    const container = document.getElementById("revenueResult");
+    container.innerHTML = ""; // clear cũ
+
+    if (bills.length === 0) {
+        container.innerHTML = "<p class='text-gray-500'>Không có hoá đơn nào.</p>";
+        return;
+    }
+
+    bills.forEach(bill => {
+        const total = bill.items.reduce((sum, item) => sum + item.total, 0);
+        const itemList = bill.items.map(i => `${i.name} (${i.quantity})`).join(", ");
+
+        const card = document.createElement("div");
+        card.className = "bg-white rounded-xl shadow p-4 mb-4 text-left";
+
+        card.innerHTML = `
+        <p><strong>Bàn:</strong> ${bill.tableID}</p>
+        <p><strong>Trạng thái:</strong> ${bill.status}</p>
+        <p><strong>Ngày tạo:</strong> ${new Date(bill.createAt).toLocaleString()}</p>
+        <p><strong>Món:</strong> ${itemList}</p>
+        <p><strong>Tổng tiền:</strong> <span class="text-green-600">${total.toLocaleString()}đ</span></p>
+        `;
+
+        container.appendChild(card);
+        });
+
+    container.classList.remove("hidden");
+    } catch (err) {
+    alert("Lỗi khi lấy thống kê: " + err.message);
+    }
+    //   try {
+    //     const res = await fetch(`/api/bills/`, { headers });
+    //     //const res = await fetch(`/api/bills/revenue?type=${type}&date=${date}`, { headers });
+    //     if (!res.ok) {
+    //       const errorData = await res.json();
+    //       throw new Error(errorData.message || "Lỗi không xác định");
+    //     }
+
+    //     const data = await res.json();
+
+    //     document.getElementById("revenueAmount").textContent = data.revenue.toLocaleString() + "đ";
+    //     document.getElementById("billCount").textContent = data.count;
+    //     document.getElementById("revenueResult").classList.remove("hidden");
+    //   } catch (err) {
+    //     alert("Lỗi khi lấy thống kê: " + err.message);
+    //   }
+    }
+  </script>
+</body>
+</html>

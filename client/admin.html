@@ -40,10 +40,17 @@
       <!-- Thẻ: Báo cáo -->
       <div onclick="window.location.href='/admin/reports'" class="cursor-pointer bg-white rounded-xl shadow p-6 hover:bg-yellow-100 transition">
         <h3 class="text-lg font-semibold text-gray-700">📊 Báo cáo</h3>
-        <p class="text-sm text-gray-500 mt-2">Xem thống kê doanh thu, đơn hàng, và hoạt động.</p>
+        <p class="text-sm text-gray-500 mt-2">Xem thống kê doanh thu.</p>
       </div>
     </div>
   </main>
 
+  <script>
+    const token = localStorage.getItem("token");
+		if (!token) {
+			alert("Vui lòng đăng nhập");
+			window.location.href = "/login";
+		}
+  </script>
 </body>
 </html>
